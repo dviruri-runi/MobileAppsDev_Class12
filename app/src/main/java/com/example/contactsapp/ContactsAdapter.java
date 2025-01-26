@@ -62,4 +62,14 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> {
     public int getItemCount() {
         return contacts.size();
     }
+
+    public void addContact(Contact contact) {
+        contacts.add(contact);
+        notifyDataSetChanged();
+    }
+
+    public void DeleteContact(int pos) {
+        contacts.remove(pos);
+        notifyDataSetChanged();
+    }
 }

@@ -1,14 +1,23 @@
 package com.example.contactsapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,5 +40,32 @@ public class MainActivity extends AppCompatActivity {
 
         ContactsAdapter adapter = new ContactsAdapter();
         rv.setAdapter(adapter);
+
+        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        Intent data = result.getData();
+                        Bundle bundle = data.getExtras();
+                        Contact contact = (Contact) bundle.getSerializable("contact");
+                        adapter.addContact(contact);
+                        //handleData(data);
+                    }
+                }
+        );
+
+        SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(adapter);
+        ItemTouchHelper helper = new ItemTouchHelper(swipeToDeleteCallback);
+        helper.attachToRecyclerView(rv);
+
+        FloatingActionButton floatingActionButton = findViewById(R.id.floatingActionButton);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this,AddContactActivity.class);
+                activityResultLauncher.launch(i);
+            }
+        });
     }
 }
